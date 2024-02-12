@@ -106,11 +106,79 @@ const ShoppingPage = () => {
         navigate('/cart');
     };
 
+    const styles = {
+        container: {
+            backgroundColor: '#F5F5F5',
+            minHeight: '100vh',
+            padding: '20px'
+        },
+        logo: {
+            width: '220px',
+            height: '50px',
+            marginLeft: '20px',
+            cursor: 'pointer'
+        },
+        cartButton: {
+            backgroundColor: 'black',
+            color: 'white',
+            marginTop: 'auto',
+            marginRight: '10px',
+            transition: 'background-color 0.3s',
+            "&:hover": {
+                backgroundColor: 'darkgrey'
+            }
+        },
+        searchField: {
+            margin: '25px'
+        },
+        errorAlert: {
+            width: '100%',
+            height: '70px',
+            display: 'block'
+        },
+        productPaper: {
+            textAlign: 'center',
+            color: '#000',
+            padding: '20px',
+            marginBottom: '20px',
+            borderRadius: '12px',
+            maxWidth: '300px',
+            height: 'auto',
+            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
+            transition: 'transform 0.3s',
+            "&:hover": {
+                transform: 'scale(1.05)',
+                boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.3)'
+            }
+        },
+        productImage: {
+            maxWidth: '100%',
+            maxHeight: '200px',
+            width: 'auto',
+            objectFit: 'cover',
+            marginBottom: '15px',
+            borderRadius: '8px'
+        },
+        productInfo: {
+            color: '#333',
+            marginBottom: '10px',
+            fontWeight: 'bold'
+        },
+        productDetails: {
+            display: 'flex',
+            alignItems: 'center'
+        },
+        quantityButton: {
+            display: 'flex',
+            alignItems: 'center'
+        }
+    };
+
     return (
-        <Box sx={{ backgroundColor: '#F5F5F5', minHeight: '100vh', padding: '20px' }}>
+        <Box sx={styles.container}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <img src={Logo} alt="Logo" style={{ width: '220px', height: '50px', marginLeft: '20px', cursor: 'pointer' }} onClick={handleLogo} />
-                <Button variant="contained" color="primary" style={{ backgroundColor: 'black', color: 'white', marginTop: 'auto', marginRight: '10px', transition: 'background-color 0.3s', "&:hover": { backgroundColor: 'darkgrey' } }} onClick={navigateToCart}>
+                <img src={Logo} alt="Logo" style={styles.logo} onClick={handleLogo} />
+                <Button variant="contained" color="primary" style={styles.cartButton} onClick={navigateToCart}>
                     Cart
                 </Button>
             </Box>
@@ -123,16 +191,16 @@ const ShoppingPage = () => {
                     onChange={handleSearchChange}
                     fullWidth
                     margin="normal"
-                    sx={{ margin: '25px' }}
+                    sx={styles.searchField}
                 />
                 <Grid container spacing={3}>
-                    {alerts ? <Alert severity="error" style={{ width: '100%', height: '70px', display: 'block' }}>You can't exceed the Quantity Limit</Alert>
-                        : <Alert severity="error" style={{ width: '100%', height: '70px', display: 'block', visibility: 'hidden' }}>You can't exceed the Quantity Limit</Alert>}
+                    {alerts ? <Alert severity="error" style={styles.errorAlert}>You can't exceed the Quantity Limit</Alert>
+                        : <Alert severity="error" style={{ ...styles.errorAlert, visibility: 'hidden' }}>You can't exceed the Quantity Limit</Alert>}
                     {filteredProducts.map((product) => (
                         <Grid item xs={12} sm={6} md={4} key={product.id}>
-                            <Paper elevation={10} style={{ textAlign: 'center', color: '#000', padding: '20px', marginBottom: '20px', borderRadius: '12px', maxWidth: '300px', height: 'auto', boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', transition: 'transform 0.3s', "&:hover": { transform: 'scale(1.05)', boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.3)' } }}>
-                                <img src={product.imageData} alt={product.name} style={{ maxWidth: '100%', maxHeight: '200px', width: 'auto', objectFit: 'cover', marginBottom: '15px', borderRadius: '8px' }} />
-                                <Typography variant="h5" gutterBottom style={{ color: '#333', marginBottom: '10px', fontWeight: 'bold' }}>{product.name}</Typography>
+                            <Paper elevation={10} style={styles.productPaper}>
+                                <img src={product.imageData} alt={product.name} style={styles.productImage} />
+                                <Typography variant="h5" gutterBottom style={styles.productInfo}>{product.name}</Typography>
                                 <Grid container spacing={1}>
                                     <Grid item xs={6}>
                                         <Typography variant="body2" gutterBottom><strong>Gender:</strong> {product.gender}</Typography>
@@ -149,11 +217,11 @@ const ShoppingPage = () => {
                                         <Typography variant="body2" gutterBottom><strong>Price:</strong> {product.currency}{product.price}</Typography>
                                     </Grid>
                                 </Grid>
-                                {!checkOutOfStock(product.quantity) && <Box style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '15px' }}>
+                                {!checkOutOfStock(product.quantity) && <Box style={styles.productDetails}>
                                     {(!selectedQuantity.get(product.id) && checkQuantity(product)) &&
                                         <Button variant="contained" color="primary" onClick={() => handleAddToCart(product.id)}>Add to Cart</Button>}
-                                    {selectedQuantity.get(product.id) && checkQuantity(product) && (
-                                        <Box style={{ display: 'flex', alignItems: 'center' }}>
+                                    {!!selectedQuantity.get(product.id) && checkQuantity(product) && (
+                                        <Box style={styles.quantityButton}>
                                             <Button onClick={() => handleQuantityChange(product.id, -1)}> - </Button>
                                             <Typography variant="body1" style={{ margin: '0 10px' }}>{selectedQuantity.get(product.id)}</Typography>
                                             <Button onClick={() => handleQuantityChange(product.id, 1)}> + </Button>
