@@ -1,44 +1,30 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Container, Grid, TextField, Button, Typography, MenuItem, Select, InputLabel, useMediaQuery, Badge } from '@mui/material';
+import { Box, Container, Grid, TextField, Button, Typography, MenuItem, Select, InputLabel, useMediaQuery } from '@mui/material';
 import { PhotoCamera } from '@mui/icons-material';
 import Logo from '../Assets/Logo.png';
-import image from '../Assets/Vector 176.png';
-import { alpha } from '@mui/system';
 import Context from '../Store/Context';
 import { useNavigate } from 'react-router-dom';
 
-const AddProduct = () => {
+const EditProduct = () => {
     const {
-        name,
-        setName,
-        gender,
-        setGender,
-        quantity,
-        setQuantity,
-        price,
-        setPrice,
-        currency,
-        setCurrency,
-        color,
-        setColor,
-        file,
-        setFile,
         products,
         setProducts,
+        editedProduct,
+        setEditedProduct
     } = useContext(Context);
     const navigate = useNavigate();
+    const [editedFields, setEditedFields] = useState({});
     const [isFileSelected, setIsFileSelected] = useState(false);
-    const [error, setError] = useState(false); 
+    const [nameError, setNameError] = useState(false);
+    const [genderError, setGenderError] = useState(false);
+    const [quantityError, setQuantityError] = useState(false);
+    const [priceError, setPriceError] = useState(false);
+    const [currencyError, setCurrencyError] = useState(false);
+    const [colorError, setColorError] = useState(false);
 
     useEffect(() => {
-        setName('');
-        setColor('');
-        setCurrency('');
-        setPrice('');
-        setQuantity('');
-        setGender('');
-        setFile('');
-    }, []);
+        setEditedFields(editedProduct)
+    }, [editedProduct]);
 
     const handleLogo = () => {
         navigate('/');
@@ -48,49 +34,50 @@ const AddProduct = () => {
         navigate('/adminProducts');
     };
 
-    const generateUniqueId = () => {
-        const timestamp = new Date().getTime();
-        const randomNumber = Math.floor(Math.random() * 10000);
-        const uniqueId = `${timestamp}${randomNumber}`;
-        return uniqueId;
-    };
-
-    const isSmallScreen = useMediaQuery('(max-width:900px)');
-
-    const fileToBase64 = (file) => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(new Blob([file]));
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = (error) => reject(error);
-        });
-    };
-
     const handleSubmit = async () => {
         try {
-   
-            setError(false);
-
-           
-            if (!name || !gender || !quantity || !price || !currency || !color || !file) {
-                setError(true);
-                return;
+            setNameError(false);
+            setGenderError(false);
+            setQuantityError(false);
+            setPriceError(false);
+            setCurrencyError(false);
+            setColorError(false);
+            let hasError = false;
+            if (!editedFields.name) {
+                setNameError(true);
+                hasError = true;
+            }
+            if (!editedFields.gender) {
+                setGenderError(true);
+                hasError = true;
+            }
+            if (!editedFields.quantity) {
+                setQuantityError(true);
+                hasError = true;
+            }
+            if (!editedFields.price) {
+                setPriceError(true);
+                hasError = true;
+            }
+            if (!editedFields.currency) {
+                setCurrencyError(true);
+                hasError = true;
+            }
+            if (!editedFields.color) {
+                setColorError(true);
+                hasError = true;
             }
 
-            const id = generateUniqueId();
-            const formData = {
-                id,
-                name,
-                gender,
-                quantity,
-                price,
-                currency,
-                color,
-                imageData: file ? await fileToBase64(file) : null,
-            };
+            if (hasError) return;
 
-            setProducts([...products, formData]);
+            const updatedProducts = products.map((product) => {
+                if (product.id === editedFields.id) {
+                    return editedFields;
+                }
+                return product;
+            });
 
+            setProducts(updatedProducts);
             navigate('/adminProducts');
         } catch (error) {
             console.error('Error:', error);
@@ -99,13 +86,17 @@ const AddProduct = () => {
 
     const handleFileChange = (e) => {
         if (e.target.files[0]) {
-            setIsFileSelected(true);
-            setFile(e.target.files[0]);
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                setIsFileSelected(true);
+                setEditedFields({ ...editedFields, imageData: event.target.result });
+            };
+            reader.readAsDataURL(e.target.files[0]);
         }
     };
-
+    const logoStyles ={ width: '220px', height: '50px', cursor: 'pointer' }
     const labelStyles = {
-        color: alpha('#000000', 0.54),
+        color: 'rgba(0, 0, 0, 0.54)',
     };
 
     const buttonStyles = {
@@ -145,34 +136,16 @@ const AddProduct = () => {
         marginBottom: '2px',
     };
 
-    const imageContainerStyle = {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-    };
-
-    const footerContainerStyle = {
-        borderTop: '1px solid black',
-        padding: '20px',
-        display: 'flex',
-        justifyContent: 'space-between',
-    };
-
-    const logoStyle = {
-        width: '220px',
-        height: '50px',
-        marginLeft: '20px',
-        cursor: 'pointer',
-    };
+    const footerStyles={ borderTop: '1px solid black', padding: '20px', display: 'flex', justifyContent: 'space-between' }
 
     const genderOptions = ['Male', 'Female', 'Other'];
     const colorOptions = ['White', 'Black', 'Blue', 'Red'];
-    const currencyOptions = ['₹', '$'];
+    const currencyOptions = ['₹', '$', '€', '£', '¥'];
 
     return (
         <Box sx={boxStyle}>
             <Box sx={logoContainerStyle}>
-                <img src={Logo} style={logoStyle} alt="Logo" onClick={handleLogo} />
+                <img src={Logo} style={logoStyles} alt="Logo" onClick={handleLogo} />
                 <Button variant="contained" color="primary" style={buttonStyles} onClick={productButton}>
                     Products
                 </Button>
@@ -183,30 +156,27 @@ const AddProduct = () => {
                         <Grid container spacing={2}>
                             <Grid item xs={12} md={6}>
                                 <InputLabel id="name-label" sx={labelStyles}>
-                                    <Badge color="error">*</Badge> Name
+                                    Name
                                 </InputLabel>
                                 <TextField
                                     sx={{ marginBottom: '20px' }}
                                     fullWidth
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    error={error && !name}
+                                    value={editedFields.name || ''}
+                                    onChange={(e) => setEditedFields({ ...editedFields, name: e.target.value })}
+                                    error={nameError}
                                 />
-                               {error && !name ? ( <Typography color="error">Name is required</Typography>)
-                                :(<Typography color="error" style={{ visibility: 'hidden' }}>Name is required</Typography>)}
-
                             </Grid>
                             <Grid item xs={12} md={6}>
                                 <InputLabel id="gender-label" sx={labelStyles}>
-                                    <Badge color="error">*</Badge> Gender
+                                    Gender
                                 </InputLabel>
                                 <Select
                                     labelId="gender-label"
                                     sx={{ marginBottom: '20px' }}
                                     fullWidth
-                                    value={gender}
-                                    onChange={(e) => setGender(e.target.value)}
-                                    error={error && !gender}
+                                    value={editedFields.gender || ''}
+                                    onChange={(e) => setEditedFields({ ...editedFields, gender: e.target.value })}
+                                    error={genderError}
                                 >
                                     {genderOptions.map((option) => (
                                         <MenuItem key={option} value={option}>
@@ -214,40 +184,31 @@ const AddProduct = () => {
                                         </MenuItem>
                                     ))}
                                 </Select>
-                                {error && !gender ? ( <Typography color="error">Gender is required</Typography>)
-                                 :
-                                  (<Typography color="error" style={{ visibility: 'hidden' }}>Gender is required</Typography>
-                                )}
-
                             </Grid>
                             <Grid item xs={12} md={6}>
                                 <InputLabel id="price-label" sx={labelStyles}>
-                                    <Badge color="error">*</Badge> Price
+                                    Price
                                 </InputLabel>
                                 <TextField
                                     sx={{ marginBottom: '20px' }}
                                     fullWidth
                                     type="number"
-                                    value={price}
-                                    onChange={(e) => setPrice(e.target.value)}
-                                    error={error && !price}
+                                    value={editedFields.price || ''}
+                                    onChange={(e) => setEditedFields({ ...editedFields, price: e.target.value })}
+                                    error={priceError}
                                 />
-                               {error && !price ? (<Typography color="error">Price is required</Typography>)
-                                : ( <Typography color="error" style={{ visibility: 'hidden' }}>Price is required</Typography>)}
-                                   
-
                             </Grid>
                             <Grid item xs={12} md={6}>
                                 <InputLabel id="currency-label" sx={labelStyles}>
-                                    <Badge color="error">*</Badge> Currency
+                                    Currency
                                 </InputLabel>
                                 <Select
                                     labelId="currency-label"
                                     sx={{ marginBottom: '20px' }}
                                     fullWidth
-                                    value={currency}
-                                    onChange={(e) => setCurrency(e.target.value)}
-                                    error={error && !currency}
+                                    value={editedFields.currency || ''}
+                                    onChange={(e) => setEditedFields({ ...editedFields, currency: e.target.value })}
+                                    error={currencyError}
                                 >
                                     {currencyOptions.map((option) => (
                                         <MenuItem key={option} value={option}>
@@ -255,38 +216,31 @@ const AddProduct = () => {
                                         </MenuItem>
                                     ))}
                                 </Select>
-                                {error && !currency ? (<Typography color="error">Currency is required</Typography>)
-                                : (
-                                     <Typography color="error" style={{ visibility: 'hidden' }}>Currency is required</Typography>
-                                    )}
                             </Grid>
                             <Grid item xs={12} md={6}>
                                 <InputLabel id="quantity-label" sx={labelStyles}>
-                                    <Badge color="error">*</Badge> Quantity
+                                    Quantity
                                 </InputLabel>
                                 <TextField
                                     sx={{ marginBottom: '20px' }}
                                     fullWidth
                                     type="number"
-                                    value={quantity}
-                                    onChange={(e) => setQuantity(e.target.value)}
-                                    error={error && !quantity}
+                                    value={editedFields.quantity || ''}
+                                    onChange={(e) => setEditedFields({ ...editedFields, quantity: e.target.value })}
+                                    error={quantityError}
                                 />
-                            {error && !quantity ? (<Typography color="error">Quantity is required</Typography>) 
-                            : (<Typography color="error" style={{ visibility: 'hidden' }}>Quantity is required</Typography>)}
-
                             </Grid>
                             <Grid item xs={12} md={6}>
                                 <InputLabel id="color-label" sx={labelStyles}>
-                                    <Badge color="error">*</Badge> Color
+                                    Color
                                 </InputLabel>
                                 <Select
                                     labelId="color-label"
                                     sx={{ marginBottom: '20px' }}
                                     fullWidth
-                                    value={color}
-                                    onChange={(e) => setColor(e.target.value)}
-                                    error={error && !color}
+                                    value={editedFields.color || ''}
+                                    onChange={(e) => setEditedFields({ ...editedFields, color: e.target.value })}
+                                    error={colorError}
                                 >
                                     {colorOptions.map((option) => (
                                         <MenuItem key={option} value={option}>
@@ -294,36 +248,24 @@ const AddProduct = () => {
                                         </MenuItem>
                                     ))}
                                 </Select>
-                                {error && !color ? (<Typography color="error">Color is required</Typography>) 
-                                     : (<Typography color="error" style={{ visibility: 'hidden' }}>Color is required</Typography>)}
                             </Grid>
+                          
                         </Grid>
                         <label htmlFor="upload-file">
                             <input accept="image/*" id="upload-file" type="file" style={{ display: 'none' }} onChange={handleFileChange} />
                             <Button variant="contained" color="primary" component="span" startIcon={<PhotoCamera />} aria-label="upload picture">
-                                *Upload
+                                Upload
                             </Button>
-                            {error && !file ? (<Typography color="error">Image is required</Typography>) : (
-                            <Typography color="error" style={{ visibility: 'hidden' }}>Image is required</Typography>)}
                         </label>
                         <Box sx={buttonContainerStyle}>
-                            {error ? <Typography color="error">All fields are mandatory</Typography> :
-                            <Typography color="error" style={{visibility:'hidden'}}>All fields are mandatory</Typography> }
                             <Button variant="contained" color="primary" onClick={handleSubmit}>
                                 Submit
                             </Button>
                         </Box>
                     </Grid>
-                    <Grid item xs={12} md={6}>
-                        {!isSmallScreen && (
-                            <Box sx={imageContainerStyle}>
-                                <img src={image} className="vector" alt="Vector" />
-                            </Box>
-                        )}
-                    </Grid>
                 </Grid>
             </Container>
-            <Box sx={footerContainerStyle}>
+            <Box sx={footerStyles}>
                 <Typography variant="body2">© 2024 All Rights Reserved.</Typography>
                 <Typography variant="body2">Privacy Policy</Typography>
             </Box>
@@ -331,4 +273,4 @@ const AddProduct = () => {
     );
 };
 
-export default React.memo(AddProduct);
+export default React.memo(EditProduct);

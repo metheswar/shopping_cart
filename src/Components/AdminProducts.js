@@ -1,13 +1,48 @@
-import React from 'react';
-import { Box, Button, Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, useMediaQuery } from '@mui/material';
+import React, { useContext, useEffect, useState } from 'react';
+import { Box, Button, Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, useMediaQuery, Modal, TextField } from '@mui/material';
 import Logo from '../Assets/Logo.png';
+import { useNavigate } from 'react-router-dom';
+import Context from '../Store/Context';
 
 const AdminProducts = () => {
-    const products = [
-        { id: 1, name: 'Product 1', gender: 'Male', price: 100, currency: 'USD', quantity: 10, color: 'Red' },
-        { id: 2, name: 'Product 2', gender: 'Female', price: 150, currency: 'USD', quantity: 15, color: 'Blue' },
-        { id: 3, name: 'Product 3', gender: 'Other', price: 200, currency: 'USD', quantity: 20, color: 'Green' },
-    ];
+    const { products, setProducts,editedProduct, setEditedProduct } = useContext(Context);
+    const navigate = useNavigate();
+
+
+    useEffect(()=>{
+        setEditedProduct({})
+    },[])
+
+    const handleLogo = () => {
+        navigate('/');
+    };
+
+    const handleAdd = () => {
+        navigate('/addProduct');
+    };
+    const handleEdit = (product) =>{
+        const {id,name,gender,quantity,price,currency,color,imageData} = product
+        const formData = {
+            id,
+            name,
+            gender,
+            quantity,
+            price,
+            currency,
+            color,
+            imageData,
+        };
+       setEditedProduct(formData)
+       navigate('/editProduct')
+    }
+
+
+    const handleDelete = (productId) => {
+        const updatedProducts = products.filter((product) => product.id !== productId);
+        setProducts(updatedProducts);
+    };
+
+
 
     const buttonStyle = {
         backgroundColor: 'black',
@@ -20,7 +55,12 @@ const AdminProducts = () => {
         },
     };
 
-    const logoStyle={ width: '220px',height:'50px' , marginLeft:'20px' }
+    const logoStyle = {
+        width: '220px',
+        height: '50px',
+        marginLeft: '20px',
+        cursor: 'pointer'
+    };
 
     const containerStyle = {
         padding: '20px',
@@ -47,8 +87,8 @@ const AdminProducts = () => {
     return (
         <Box sx={{ backgroundColor: '#F5F5F5', minHeight: '100vh' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <img src={Logo} alt="Logo" style={logoStyle} />
-                <Button variant="contained" color="primary" style={{ ...buttonStyle, ...(isSmallScreen && { padding: '6px 12px', fontSize: '0.875rem' }) }}>
+                <img src={Logo} style={logoStyle} alt="Logo" onClick={handleLogo} />
+                <Button variant="contained" color="primary" style={{ ...buttonStyle, ...(isSmallScreen && { padding: '6px 12px', fontSize: '0.875rem' }) }} onClick={handleAdd}>
                     Add
                 </Button>
             </Box>
@@ -79,10 +119,10 @@ const AdminProducts = () => {
                                     <TableCell>{product.quantity}</TableCell>
                                     <TableCell>{product.color}</TableCell>
                                     <TableCell style={actionButtonCellStyle}>
-                                        <Button variant="contained" color="primary" size="small" style={editButtonStyle}>
+                                        <Button variant="contained" color="primary" size="small" style={editButtonStyle} onClick={()=> handleEdit(product)}>
                                             Edit
                                         </Button>
-                                        <Button variant="contained" color="error" size="small">
+                                        <Button variant="contained" color="error" size="small" onClick={() => handleDelete(product.id)}>
                                             Delete
                                         </Button>
                                     </TableCell>
@@ -92,8 +132,10 @@ const AdminProducts = () => {
                     </Table>
                 </TableContainer>
             </Container>
+
+
         </Box>
     );
 }
 
-export default AdminProducts;
+export default React.memo(AdminProducts);

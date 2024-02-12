@@ -1,24 +1,42 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Box, Paper, Checkbox, Container, Grid, Typography, Button, useMediaQuery } from '@mui/material';
 import Logo from '../Assets/Logo.png';
 import image from '../Assets/Vector 176.png'
 import './Home.css';
+import Context from '../Store/Context';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const Home = () => {
-  const [isAdminChecked, setIsAdminChecked] = useState(false);
-  const [isUserChecked, setIsUserChecked] = useState(false);
+  const {isUserChecked, setIsUserChecked,isAdminChecked, setIsAdminChecked} = useContext(Context)
   const isSmallScreen = useMediaQuery('(max-width:900px)');
+  const navigate = useNavigate()
+
+
+  useEffect(()=>{
+    setIsAdminChecked(false)
+    setIsUserChecked(false)
+    navigate('/')
+  },[])
 
   const handleAdminCheckboxChange = (event) => {
     setIsAdminChecked(event.target.checked);
+if(event.target.checked){
+  navigate('/addProduct')
+}
     setIsUserChecked(false);
   };
 
   const handleUserCheckboxChange = (event) => {
     setIsUserChecked(event.target.checked);
+    if(event.target.checked){
+      navigate('/shop')
+    }
     setIsAdminChecked(false);
   };
 
+  const handleLogo = (e)=>{
+    navigate('/')
+  }
   const boxStyle = {
     backgroundColor: '#F5F5F5',
     minHeight: '100vh',
@@ -71,7 +89,7 @@ const Home = () => {
   return (
     <Box sx={boxStyle}>
       <Box sx={logoContainerStyle}>
-        <img src={Logo} className='logo_img' alt="Logo" />
+        <img src={Logo} className='logo_img' alt="Logo" onClick={handleLogo} />
       </Box>
       <Container sx={containerStyle}>
         <Grid container spacing={4}>
@@ -89,11 +107,6 @@ const Home = () => {
                   User
                 </Box>
               </Paper>
-              <Box sx={buttonContainerStyle}>
-                <Button variant="contained" color="primary">
-                  Login
-                </Button>
-              </Box>
             </Box>
           </Grid>
           {!isSmallScreen && (
@@ -117,4 +130,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default React.memo(Home);
