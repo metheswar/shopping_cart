@@ -165,7 +165,7 @@ const AddProduct = () => {
         cursor: 'pointer',
     };
 
-    const genderOptions = ['Male', 'Female', 'Other'];
+    const genderOptions = ['Male', 'Female', 'Unisex'];
     const colorOptions = ['White', 'Black', 'Blue', 'Red'];
     const currencyOptions = ['₹', '$'];
 
