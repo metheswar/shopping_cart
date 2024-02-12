@@ -81,6 +81,7 @@ const AdminProducts = () => {
     const editButtonStyle = {
         marginRight: '8px',
     };
+    const addButtonStyle = { ...buttonStyle, ...(isSmallScreen && { padding: '6px 12px', fontSize: '0.875rem' }) }
 
     const isSmallScreen = useMediaQuery('(max-width:600px)');
 
@@ -88,7 +89,7 @@ const AdminProducts = () => {
         <Box sx={{ backgroundColor: '#F5F5F5', minHeight: '100vh' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <img src={Logo} style={logoStyle} alt="Logo" onClick={handleLogo} />
-                <Button variant="contained" color="primary" style={{ ...buttonStyle, ...(isSmallScreen && { padding: '6px 12px', fontSize: '0.875rem' }) }} onClick={handleAdd}>
+                <Button variant="contained" color="primary" style={addButtonStyle} onClick={handleAdd}>
                     Add
                 </Button>
             </Box>

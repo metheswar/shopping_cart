@@ -93,6 +93,7 @@ const Cart = () => {
         display:'block',
         marginBottom:'10px !important'
     }
+    const alertStyle ={ width: '100%', height: '70px',display:'block' }   
 
     const handleDelete = (id) => {
         const updatedCartItems = initialCartItems.filter(item => item.id !== id);
@@ -170,7 +171,7 @@ if(cartItems.length>0){
         setCartItems([]);
 }
 
-       
+
     }
     
     return (
@@ -179,9 +180,9 @@ if(cartItems.length>0){
                 <img src={Logo} alt="Logo" style={logoStyle} onClick={handleLogo} />
                 <Button variant="contained" color="primary" style={buttonStyle} onClick={shopButtonHandler}>Products</Button>
             </Box>
-            {alerts ? <Alert  severity="error" style={{ width: '100%', height: '70px',display:'block' }}>
+            {alerts ? <Alert  severity="error" style={alertStyle}>
                     You can't exceed the Quantity Limit
-                    </Alert> : <Alert  severity="error" style={{visibility:'hidden', width: '100%', height: '70px' ,display:'block'}}>
+                    </Alert> : <Alert  severity="error" style={{visibility:'hidden',...alertStyle}}>
                     You can't exceed the Quantity Limit
                     </Alert>}
             <Grid container spacing={2} sx={gridStyle}>
