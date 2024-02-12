@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Box, IconButton, Button, Container } from '@mui/material';
+import { Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Box, IconButton, Button, Container ,Alert} from '@mui/material';
 import { styled } from '@mui/material/styles';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -10,6 +10,8 @@ import Context from '../Store/Context';
 
 const Cart = () => {
     const { cartItems, setCartItems , products, setProducts} = useContext(Context);
+
+    const [alerts,setAlerts] = useState(false)
     const navigate = useNavigate();
     const handleLogo = (e) => {
         navigate('/');
@@ -106,7 +108,14 @@ const Cart = () => {
                 const newQuantity = (item.quantity || 0) + amount;
                 const product = products.find(product => product.id === id);
                 const availableQuantity = product.quantity || 0;
+                if(newQuantity > availableQuantity){
+                    setAlerts(true);
+                    setTimeout(() => {
+                        setAlerts(false)
+                    }, 5000);
+                }
                 const updatedQuantity = Math.min(Math.max(newQuantity, 0), availableQuantity);
+
 
                 if(updatedQuantity > availableQuantity){
                     return null
@@ -170,6 +179,11 @@ if(cartItems.length>0){
                 <img src={Logo} alt="Logo" style={logoStyle} onClick={handleLogo} />
                 <Button variant="contained" color="primary" style={buttonStyle} onClick={shopButtonHandler}>Products</Button>
             </Box>
+            {alerts ? <Alert  severity="error" style={{ width: '100%', height: '70px',display:'block' }}>
+                    You can't exceed the Quantity Limit
+                    </Alert> : <Alert  severity="error" style={{visibility:'hidden', width: '100%', height: '70px' ,display:'block'}}>
+                    You can't exceed the Quantity Limit
+                    </Alert>}
             <Grid container spacing={2} sx={gridStyle}>
                 {initialCartItems.length > 0 ? (
                     <>
